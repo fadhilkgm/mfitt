@@ -19,8 +19,9 @@ class CreateProductsTable extends Migration
             $table->integer('serial_number')->nullable();
             $table->string('model')->nullable();
             $table->integer('category_id');
-            $table->string('sales_price');
-            $table->integer('unit_id');
+            $table->string('sales_price')->nullable();
+            $table->string('unit');
+            $table->string('quantity');
             $table->string('image')->nullable();
             $table->string('tax_id')->nullable();
             $table->timestamps();

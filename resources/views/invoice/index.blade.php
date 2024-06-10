@@ -31,7 +31,9 @@
                             <tr>
                                 <th>Invoice ID </th>
                                 <th>Customer Name </th>
+                                <th>Customer Phone</th>
                                 <th>Date </th>
+                                <th>Total</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -40,8 +42,10 @@
                              @foreach($invoices as $invoice)
                                  <tr>
                                      <td>{{1000+$invoice->id}}</td>
-                                     <td>{{$invoice->customer->name}}</td>
+                                     <td>{{$invoice->customer_name ?? "No name Available"}}</td>
+                                     <td>{{$invoice->customer_phone ?? "No phone available"}}</td>
                                      <td>{{$invoice->created_at->format('Y-m-d')}}</td>
+                                     <td>{{$invoice->total}} ₹</td>
                                      <td>
                                          <a class="btn btn-primary btn-sm" href="{{route('invoice.show', $invoice->id)}}"><i class="fa fa-eye" ></i></a>
                                          <a class="btn btn-info btn-sm" href="{{route('invoice.edit', $invoice->id)}}"><i class="fa fa-edit" ></i></a>

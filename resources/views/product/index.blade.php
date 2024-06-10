@@ -35,7 +35,8 @@
                                 <th>Sales Price</th>
                                 <!-- <th>Purchase Price</th>
                                 <th>Supplier</th> -->
-                                <th>Image</th>
+                                <!-- <th>Image</th> -->
+                                <th>Category</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
@@ -51,7 +52,8 @@
                                       <td>{{$add->supplier->name}}</td> --}}
 
                                      <td>{{$product->sales_price}}</td>
-                                     <td><img width="40px" src="{{ asset('images/product/'.$product->image) }}"></td>
+                                     <td>{{$product->category->name}}</td>
+                                     <!-- <td><img width="40px" src="{{ asset('images/product/'.$product->image) }}"></td> -->
 
                                      <td>
                                          <a class="btn btn-primary btn-sm" href="{{ route('product.edit', $product->id) }}"><i class="fa fa-edit" ></i></a>

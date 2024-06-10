@@ -18,6 +18,7 @@ class CreateSalesTable extends Migration
             $table->bigInteger('invoice_id')->unsigned();
             $table->bigInteger('product_id')->unsigned();
             $table->integer('qty');
+            $table->integer('count');
             $table->integer('price');
             $table->integer('dis');
             $table->integer('amount');

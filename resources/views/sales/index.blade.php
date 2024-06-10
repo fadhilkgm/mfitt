@@ -31,6 +31,7 @@
                             <tr>
                                 <th>Product </th>
                                 <th>Qty </th>
+                                <th>No of items</th>
                                 <th>Price</th>
                                 <th>Total</th>
                                 <th>Date </th>
@@ -40,7 +41,8 @@
             @foreach($sales as $sale)
                 <tr>
                     <td>{{ $sale->product->name }}</td>
-                    <td>{{ $sale->qty }}</td>
+                    <td>{{ $sale->qty }} {{$sale->product->unit}}</td>
+                    <td>{{$sale->count}}</td>
                     <td>{{ $sale->price }}</td>
                     <td>{{ $sale->amount }}</td>
                     <td>{{ $sale->created_at }}</td>

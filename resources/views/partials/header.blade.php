@@ -1,4 +1,4 @@
-<header class="app-header"><a class="app-header__logo" href="">S A I M S</a>
+<header class="app-header"><a class="app-header__logo" href=""><img src="{{asset('images/logo-full.png')}}" width="150px" alt=""></a>
     <!-- Sidebar toggle button--><a class="app-sidebar__toggle" href="#" data-toggle="sidebar" aria-label="Hide Sidebar"></a>
     <!-- Navbar Right Menu-->
     <ul class="app-nav">

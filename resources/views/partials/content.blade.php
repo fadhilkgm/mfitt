@@ -28,15 +28,6 @@
         </div>
     </div>
     <div class="col-md-6 col-lg-3">
-        <div class="widget-small warning coloured-icon">
-            <i class="icon fa fa-truck fa-3x"></i>
-            <div class="info">
-                <h4>Suppliers</h4>
-                <p><b>{{ $totalSuppliers }}</b></p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-lg-3">
         <div class="widget-small danger coloured-icon">
             <i class="icon fa fa-file fa-3x"></i>
             <div class="info">

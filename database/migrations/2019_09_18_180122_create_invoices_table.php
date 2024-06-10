@@ -15,11 +15,13 @@ class CreateInvoicesTable extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('customer_id')->unsigned();
+            // $table->bigInteger('customer_id')->unsigned();
             $table->string('total');
-            $table->foreign('customer_id')
-                ->references('id')->on('customers')
-                ->onDelete('cascade');
+            // $table->foreign('customer_id')
+            //     ->references('id')->on('customers')
+            //     ->onDelete('cascade');
+            $table->string('customer_name')->nullable();
+            $table->string('customer_phone')->nullable();
             $table->timestamps();
         });
     }

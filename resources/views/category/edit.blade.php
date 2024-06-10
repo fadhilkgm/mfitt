@@ -43,7 +43,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <!-- <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="control-label">Category type</label>
                                         <select name="type" class="form-control @error('name') is-invalid @enderror">
@@ -58,7 +58,7 @@
                                             </span>
                                         @enderror
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="form-group col-md-4 align-self-end">
                                 <button class="btn btn-success" type="submit"><i class="fa fa-fw fa-lg fa-check-circle"></i>Update</button>
