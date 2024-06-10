@@ -32,7 +32,7 @@
                                 <address><strong>Mfitt Calicut</strong><br></address>
                             </div>
                             <div class="col-4">To
-                                 <address><strong>{{$invoice->customer_name}}</strong><br>Phone: {{$invoice->customer_phone}}<br></address>
+                                 <address><strong>{{$invoice->customer_name ?? 'No name available'}}</strong><br>Phone: {{$invoice->customer_phone ?? 'No Phone number available'}}<br></address>
                              </div>
                             <div class="col-4"><b>Invoice #{{1000+$invoice->id}}</b><br><br><b>Order ID:</b> 4F3S8J<br><b>Payment Due:</b> {{$invoice->created_at->format('Y-m-d')}}<br><b>Account:</b> 000-12345</div> 
                         </div>
