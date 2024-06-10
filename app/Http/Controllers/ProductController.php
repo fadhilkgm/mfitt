@@ -33,12 +33,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $suppliers = Supplier::all();
         $categories = Category::all();
-        $taxes = Tax::all();
-        $units = Unit::all();
-
-        return view('product.create', compact('categories', 'taxes', 'units', 'suppliers'));
+        return view('product.create', compact('categories'));
     }
 
     /**
@@ -51,13 +47,14 @@ class ProductController extends Controller
     {
 
         $request->validate([
-            'name' => 'required|min:3|unique:products|regex:/^[a-zA-Z ]+$/',
+            'name' => 'required|unique:products|regex:/^[a-zA-Z ]+$/',
             // 'serial_number' => 'required',
             // 'model' => 'required|min:3',
             'category_id' => 'required',
             'sales_price' => 'required',
-            'unit_id' => 'required',
+            'unit' => 'required',
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'quantity'=>'required'
             // 'tax_id' => 'required',
 
         ]);
@@ -69,7 +66,9 @@ class ProductController extends Controller
         // $product->model = $request->model;
         $product->category_id = $request->category_id;
         $product->sales_price = $request->sales_price;
-        $product->unit_id = $request->unit_id;
+
+        $product->unit = $request->unit;
+        $product->quantity = $request->quantity;
         // $product->tax_id = $request->tax_id;
 
 
@@ -79,12 +78,12 @@ class ProductController extends Controller
         //     $product->image = $imageName;
         // }
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/product/'), $imageName);
-            $product->image = $imageName;
-        }
+        // if ($request->hasFile('image')) {
+        //     $image = $request->file('image');
+        //     $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+        //     $image->move(public_path('images/product/'), $imageName);
+        //     $product->image = $imageName;
+        // }
 
 
 
@@ -123,12 +122,10 @@ class ProductController extends Controller
         // $additional = ProductSupplier::where('product_id', $productId)->first();
 
         $product = Product::findOrFail($id);
-        $suppliers = Supplier::all();
+
         $categories = Category::all();
-        $taxes = Tax::all();
-        $units = Unit::all();
         // return view('product.edit', compact('additional', 'suppliers', 'categories', 'taxes', 'units', 'product'));
-        return view('product.edit', compact('categories', 'taxes', 'units', 'product'));
+        return view('product.edit', compact('categories','product'));
     }
 
     /**
@@ -191,13 +188,14 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|min:3|unique:products,name,' . $id . '|regex:/^[a-zA-Z ]+$/',
+            'name' => 'required|unique:products,name,' . $id . '|regex:/^[a-zA-Z ]+$/',
             // 'serial_number' => 'required',
             // 'model' => 'required|min:3',
             'category_id' => 'required',
             'sales_price' => 'required',
-            'unit_id' => 'required',
+            'unit' => 'required',
             'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'quantity'=>'required'
             // 'tax_id' => 'required',
             // 'supplier_id.*' => 'required|exists:suppliers,id',
             // 'supplier_price.*' => 'required|numeric|min:0',
@@ -214,7 +212,8 @@ class ProductController extends Controller
         // $product->model = $request->model;
         $product->category_id = $request->category_id;
         $product->sales_price = $request->sales_price;
-        $product->unit_id = $request->unit_id;
+        $product->unit = $request->unit;
+        $product->quantity = $request->quantity;
         // $product->tax_id = $request->tax_id;
 
         // if ($request->hasFile('image')) {

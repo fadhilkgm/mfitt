@@ -47,12 +47,12 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|min:3|unique:categories|regex:/^[a-zA-Z ]+$/',
-            'type'=>'required',
+            // 'type'=>'required',
         ]);
 
         $category = new Category();
         $category->name = $request->name;
-        $category->type = $request->type;
+        // $category->type = $request->type;
         $category->slug = Str::slug($request->name);
         $category->status = 1;
         $category->save();
@@ -94,12 +94,12 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|min:3|regex:/^[a-zA-Z ]+$/',
-            'type'=>'required'
+            // 'type'=>'required'
         ]);
 
         $category = Category::findOrFail($id);
         $category->name = $request->name;
-        $category->type = $request->type;
+        // $category->type = $request->type;
         $category->slug = Str::slug($request->name);
         $category->save();
 

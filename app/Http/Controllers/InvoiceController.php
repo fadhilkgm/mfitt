@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
+
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\Sales;
@@ -40,9 +40,8 @@ class InvoiceController extends Controller
      */
     public function create()
     {
-        $customers = Customer::all();
         $products = Product::all();
-        return view('invoice.create', compact('customers','products'));
+        return view('invoice.create', compact('products'));
     }
 
     /**
@@ -53,43 +52,52 @@ class InvoiceController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->product_id);
         $request->validate([
-
-            'customer_id' => 'required',
-            'product_id' => 'required',
-            'qty' => 'required',
-            'price' => 'required',
-            'dis' => 'required',
-            'amount' => 'required',
+            'customer_name' => 'nullable|string',
+            'customer_phone' => 'nullable|string',
+            'product_id' => 'required|array',
+            'qty' => 'required|array',
+            'price' => 'required|array',
+            'dis' => 'required|array',
+            'amount' => 'required|array',
+            'count' => 'required|array',
         ]);
 
         $invoice = new Invoice();
-        $invoice->customer_id = $request->customer_id;
-        $invoice->total = 1000;
+        $invoice->customer_name = $request->customer_name;
+        $invoice->customer_phone = $request->customer_phone;
+        $invoice->total = 0; // Initialize total to 0
         $invoice->save();
 
-        foreach ( $request->product_id as $key => $product_id){
+        $totalAmount = 0;
+
+        foreach ($request->product_id as $key => $product_id) {
             $sale = new Sale();
             $sale->qty = $request->qty[$key];
             $sale->price = $request->price[$key];
             $sale->dis = $request->dis[$key];
+            $sale->count = $request->count[$key];
             $sale->amount = $request->amount[$key];
-            $sale->product_id = $request->product_id[$key];
+            $sale->product_id = $product_id;
             $sale->invoice_id = $invoice->id;
             $sale->save();
 
+            $totalAmount += $sale->amount; // Add the sale amount to the total
+        }
 
-         }
+        $invoice->total = $totalAmount; // Update the invoice total with the calculated amount
+        $invoice->save(); // Save the updated invoice
 
-         return redirect('invoice/'.$invoice->id)->with('message','Invoice created Successfully');
-
-
-
-
+        return redirect('invoice/' . $invoice->id)->with('message', 'Invoice created successfully');
     }
 
-    public function findPrice(Request $request){
-        $data = DB::table('products')->select('sales_price')->where('id', $request->id)->first();
+
+
+
+    public function findPrice(Request $request)
+    {
+        $data = DB::table('products')->select('sales_price','quantity','unit')->where('id', $request->id)->first();
         return response()->json($data);
     }
 
@@ -103,8 +111,7 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::findOrFail($id);
         $sales = Sale::where('invoice_id', $id)->get();
-        return view('invoice.show', compact('invoice','sales'));
-
+        return view('invoice.show', compact('invoice', 'sales'));
     }
 
     /**
@@ -115,11 +122,11 @@ class InvoiceController extends Controller
      */
     public function edit($id)
     {
-        $customers = Customer::all();
+        
         $products = Product::orderBy('id', 'DESC')->get();
         $invoice = Invoice::findOrFail($id);
         $sales = Sale::where('invoice_id', $id)->get();
-        return view('invoice.edit', compact('customers','products','invoice','sales'));
+        return view('invoice.edit', compact('products', 'invoice', 'sales'));
     }
 
     /**
@@ -132,39 +139,45 @@ class InvoiceController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-
-        'customer_id' => 'required',
-        'product_id' => 'required',
-        'qty' => 'required',
-        'price' => 'required',
-        'dis' => 'required',
-        'amount' => 'required',
-    ]);
+            'customer_name' => 'nullable|string',
+            'customer_phone' => 'nullable|string',
+            'product_id' => 'required|array',
+            'qty' => 'required|array',
+            'price' => 'required|array',
+            'dis' => 'required|array',
+            'amount' => 'required|array',
+        ]);
 
         $invoice = Invoice::findOrFail($id);
-        $invoice->customer_id = $request->customer_id;
-        $invoice->total = 1000;
-        $invoice->save();
+        $invoice->customer_name = $request->customer_name;
+        $invoice->customer_phone = $request->customer_phone;
+        $invoice->total = 0; // Initialize total to 0
 
-        Sale::where('invoice_id', $id)->delete();
+        // Delete existing sales related to the invoice
+        Sale::where('invoice_id', $invoice->id)->delete();
 
-        foreach ( $request->product_id as $key => $product_id){
+        $totalAmount = 0;
+
+        foreach ($request->product_id as $key => $product_id) {
             $sale = new Sale();
             $sale->qty = $request->qty[$key];
             $sale->price = $request->price[$key];
             $sale->dis = $request->dis[$key];
+            $sale->count = $request->count[$key];
             $sale->amount = $request->amount[$key];
-            $sale->product_id = $request->product_id[$key];
+            $sale->product_id = $product_id;
             $sale->invoice_id = $invoice->id;
             $sale->save();
 
-
+            $totalAmount += $sale->amount; // Add the sale amount to the total
         }
 
-         return redirect('invoice/'.$invoice->id)->with('message','invoice created Successfully');
+        $invoice->total = $totalAmount; // Update the invoice total with the calculated amount
+        $invoice->save(); // Save the updated invoice
 
-
+        return redirect('invoice/' . $invoice->id)->with('message', 'Invoice updated successfully');
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -179,6 +192,5 @@ class InvoiceController extends Controller
         $invoice = Invoice::findOrFail($id);
         $invoice->delete();
         return redirect()->back();
-
     }
 }

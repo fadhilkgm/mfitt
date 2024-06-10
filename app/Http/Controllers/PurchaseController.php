@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Sale;
@@ -127,11 +126,11 @@ foreach ($request->product_id as $key => $productId) {
      */
     public function edit($id)
     {
-        $customers = Customer::all();
+
         $products = Product::orderBy('id', 'DESC')->get();
         $invoice = Invoice::findOrFail($id);
         $sales = Sale::where('invoice_id', $id)->get();
-        return view('invoice.edit', compact('customers','products','invoice','sales'));
+        return view('invoice.edit', compact('products','invoice','sales'));
     }
 
     /**

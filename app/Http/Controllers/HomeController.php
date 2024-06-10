@@ -39,7 +39,6 @@ class HomeController extends Controller
 {
     $totalProducts = Product::count();
     $totalSales = Sale::count();
-    $totalSuppliers = Supplier::count();
     $totalInvoices = Invoice::count();
 
     // Fetch monthly sales data from the sales table
@@ -94,7 +93,6 @@ class HomeController extends Controller
         'formattedTopSales'=> $formattedTopSales,
         'totalProducts' => $totalProducts,
         'totalSales' => $totalSales,
-        'totalSuppliers' => $totalSuppliers,
         'totalInvoices' => $totalInvoices,
         'todaySales' => $todaySales, 
         'yesterdaySales' => $yesterdaySales,
