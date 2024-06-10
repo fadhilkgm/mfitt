@@ -18,7 +18,8 @@ class CreateProductsTable extends Migration
             $table->string('name');
             $table->integer('serial_number')->nullable();
             $table->string('model')->nullable();
-            $table->integer('category_id');
+            $table->unsignedBigInteger('category_id');
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->string('sales_price')->nullable();
             $table->string('unit');
             $table->string('quantity');
