@@ -32,6 +32,7 @@
                                 <th>Invoice ID </th>
                                 <th>Customer Name </th>
                                 <th>Customer Phone</th>
+                                <th>Payment Method</th>
                                 <th>Date </th>
                                 <th>Total</th>
                                 <th>Action</th>
@@ -44,7 +45,8 @@
                                      <td>{{1000+$invoice->id}}</td>
                                      <td>{{$invoice->customer_name ?? "No name Available"}}</td>
                                      <td>{{$invoice->customer_phone ?? "No phone available"}}</td>
-                                     <td>{{$invoice->created_at->format('Y-m-d')}}</td>
+                                     <td>{{$invoice->payment_method}}</td>
+                                     <td>{{$invoice->date}}</td>
                                      <td>{{$invoice->total}} ₹</td>
                                      <td>
                                          <a class="btn btn-primary btn-sm" href="{{route('invoice.show', $invoice->id)}}"><i class="fa fa-eye" ></i></a>

@@ -22,6 +22,8 @@ class CreateInvoicesTable extends Migration
             //     ->onDelete('cascade');
             $table->string('customer_name')->nullable();
             $table->string('customer_phone')->nullable();
+            $table->enum('payment_method',['Cash','Online']);
+            $table->date('date');
             $table->timestamps();
         });
     }

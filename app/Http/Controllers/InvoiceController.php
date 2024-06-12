@@ -8,6 +8,7 @@ use App\Models\Sale;
 use App\Models\Sales;
 use App\Models\Supplier;
 use App\Models\Invoice;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -62,12 +63,15 @@ class InvoiceController extends Controller
             'dis' => 'required|array',
             'amount' => 'required|array',
             'count' => 'required|array',
+            'payment_method'=>'required'
         ]);
 
         $invoice = new Invoice();
         $invoice->customer_name = $request->customer_name;
         $invoice->customer_phone = $request->customer_phone;
-        $invoice->total = 0; // Initialize total to 0
+        $invoice->payment_method = $request->payment_method;
+        $invoice->total = 0;
+        $invoice->date = Carbon::now();
         $invoice->save();
 
         $totalAmount = 0;
@@ -146,14 +150,15 @@ class InvoiceController extends Controller
             'price' => 'required|array',
             'dis' => 'required|array',
             'amount' => 'required|array',
+            'payment_method'=>'required'
         ]);
 
         $invoice = Invoice::findOrFail($id);
         $invoice->customer_name = $request->customer_name;
         $invoice->customer_phone = $request->customer_phone;
-        $invoice->total = 0; // Initialize total to 0
-
-        // Delete existing sales related to the invoice
+        $invoice->payment_method = $request->payment_method;
+        $invoice->date = Carbon::now();
+        $invoice->total = 0; 
         Sale::where('invoice_id', $invoice->id)->delete();
 
         $totalAmount = 0;

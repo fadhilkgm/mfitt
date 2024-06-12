@@ -7,13 +7,12 @@
 <main class="app-content">
     <div class="app-title">
         <div>
-            <h1><i class="fa fa-edit"></i> Form Samples</h1>
-            <p>Sample forms</p>
+            <h1><i class="fa fa-edit"></i> Edit Invoice</h1>
         </div>
         <ul class="app-breadcrumb breadcrumb">
             <li class="breadcrumb-item"><i class="fa fa-home fa-lg"></i></li>
-            <li class="breadcrumb-item">Forms</li>
-            <li class="breadcrumb-item"><a href="#">Sample Forms</a></li>
+            <li class="breadcrumb-item">Invoice</li>
+            <li class="breadcrumb-item"><a href="#">Edit Invoice</a></li>
         </ul>
     </div>
 
@@ -29,12 +28,19 @@
                         <input type="hidden" name="invoice_id" value="{{ $invoice->id }}">
                         <div class="row">
                             <div class="form-group col-md-3">
-                                <label class="control-label">Customer Name</label>
+                                <label class="control-label">Customer Name (optional)</label>
                                 <input type="text" name="customer_name" value="{{ $invoice->customer_name }}" placeholder="Customer Name" class="form-control">
                             </div>
                             <div class="form-group col-md-3">
                                 <label class="control-label">Mobile Number (optional)</label>
                                 <input name="customer_phone" class="form-control" type="text" value="{{ $invoice->customer_phone }}" placeholder="Mobile Number">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label class="control-label">Payment Method</label>
+                                <select name="payment_method" class="form-control">
+                                    <option value="Cash" {{ $invoice->payment_method == 'Cash' ? 'selected' : '' }}>Cash</option>
+                                    <option value="Online" {{ $invoice->payment_method == 'Online' ? 'selected' : '' }}>GPay/Paytm/PhonePe</option>
+                                </select>
                             </div>
                             <div class="form-group col-md-3">
                                 <label class="control-label">Date</label>
