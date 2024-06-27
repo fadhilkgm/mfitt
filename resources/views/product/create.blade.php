@@ -55,30 +55,13 @@
                                 @enderror
                             </div>
                             <div class="form-group col-md-6">
-                                <label class="control-label">Category</label>
-
-                                <select name="category_id" class="form-control">
-                                    <option>---Select Category---</option>
-                                    @foreach($categories as $category)
-                                    <option value="{{$category->id}}">{{$category->name}}</option>
-                                    @endforeach
-                                </select>
-
-                                @error('category_id')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-6">
                                 <label class="control-label">Unit</label>
-                                <select name="unit" id="unit" class="form-control">
-                                    <option>---Select Unit---</option>
-                                    <option value="KG">KG</option>
-                                    <option value="GM">GM</option>
-                                    <option value="LTR">LTR</option>
-                                    <option value="ML">ML</option>
-                                    <option value="PK">PK</option>
+                                <select name="unit" class="form-control unit">
+                                    <option value="">Select Unit</option>
+                                    <option value="M">Meter</option>
+                                    <option value="In">Inch</option>
+                                    <option value="Ft">Feet</option>
+                                    <option value="Pc">Piece</option>
                                 </select>
                                 @error('unit')
                                 <span class="invalid-feedback" role="alert">
@@ -86,23 +69,13 @@
                                 </span>
                                 @enderror
                             </div>
-                            <div class="form-group col-md-6 selling-price-normal">
-                                <label class="control-label">Quantity</label>
-                                <input name="quantity" class="form-control @error('quantity') is-invalid @enderror"
-                                    type="number" placeholder="Enter quantity">
-                                @error('quantity')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </div>
 
                             <div class="form-group col-md-6 selling-price-normal">
-                                <label class="control-label">Selling Price</label>
-                                <input name="sales_price"
-                                    class="form-control @error('sales_price') is-invalid @enderror" type="number"
-                                    placeholder="Enter Selling Price">
-                                @error('sales_price')
+                                <label class="control-label">Price</label>
+                                <input name="price"
+                                    class="form-control @error('price') is-invalid @enderror" type="number"
+                                    placeholder="Enter Price">
+                                @error('price')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>

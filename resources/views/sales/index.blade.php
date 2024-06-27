@@ -53,7 +53,7 @@
                 </div>
             </div>
         </form>
-        
+
     </div>
     <div class="tile">
         <div>
@@ -74,29 +74,24 @@
                                     <th>No of items</th>
                                     <th>Price</th>
                                     <th>Total</th>
-                                    <th>Payment Method</th>
                                     <th>Date</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($sales as $sale)
-                                @foreach($sale->sale as $item)
                                 <tr>
-                                    <td>{{ $sale->customer_name ?? 'N/A' }}</td>
-                                    <td>{{ $sale->customer_phone ?? 'N/A' }}</td>
-                                    <td>{{ $item->product->name }}</td>
-                                    <td>{{ $item->qty }} {{ $item->product->unit }}</td>
-                                    <td>{{ $item->count }}</td>
-                                    <td>{{ $item->price }}</td>
-                                    <td>{{ $item->amount }}</td>
-                                    <td>{{ $sale->payment_method }}</td>
-                                    <td>{{ $sale->date }}</td>
+                                    <td>{{ $sale->customer->name ?? 'N/A' }}</td>
+                                    <td>{{ $sale->customer->phone ?? 'N/A' }}</td>
+                                    <td>{{ $sale->product->name }}</td>
+                                    <td>{{ $sale->quantity }}</td>
+                                    <td>{{ $sale->balance }}</td>
+                                    <td>{{ $sale->total }}</td>
+                                    <td>{{-- $sale->date --}}</td>
                                 </tr>
-                                @endforeach
                                 @endforeach
                             </tbody>
                         </table>
-                        {{ $sales->links() }}
+                        {{-- $sales->links() --}}
                     </div>
                 </div>
             </div>

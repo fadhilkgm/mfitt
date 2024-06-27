@@ -69,7 +69,7 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
 body {
   margin: 0;
   font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
   color: #212529;
@@ -15234,3 +15234,25 @@ be a descendant of the grid when it is being dragged.
 .user .user-settings label {
   color: #666;
 }
+
+.suggestions {
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    position: absolute;
+    background-color: white;
+    min-width: 200px;
+    max-width:370px;
+    z-index: 1000;
+}
+
+.suggestions div {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom:1px solid #f0f0f0;
+}
+
+.suggestions div:hover {
+    background-color: #f0f0f0;
+}
+

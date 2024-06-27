@@ -8,8 +8,10 @@ use App\Models\Sale;
 use App\Models\Supplier;
 use App\Models\Invoice;
 use App\Models\PurchaseDetail;
+use App\Models\PurchaseInvoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class PurchaseController extends Controller
 {
@@ -26,10 +28,31 @@ class PurchaseController extends Controller
     }
 
 
-    public function index()
+   public function index(Request $request)
     {
-        $purchase = Purchase::all();
-        return view('purchase.index', compact('purchase'));
+        $query = PurchaseInvoice::with('supplier');
+
+        if ($request->has('customer_name')) {
+            $query->whereHas('customer', function ($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->customer_name . '%');
+            });
+        }
+
+        if ($request->has('customer_phone')) {
+            $query->whereHas('customer', function ($query) use ($request) {
+                $query->where('phone', 'like', '%' . $request->customer_phone . '%');
+            });
+        }
+        if ($request->has('date')) {
+            $query->where('date', 'like', '%' . $request->date . '%');
+        }
+        if ($request->has('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        $purchases = $query->orderByDesc('created_at')->paginate(10);
+
+        return view('purchase.index', compact('purchases'));
     }
 
     /**
@@ -51,43 +74,68 @@ class PurchaseController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-{
-    // Validation rules
-    $request->validate([
-        'supplier_id' => 'required|exists:suppliers,id',
-        'date' => 'required|date',
-        'product_id.*' => 'required|exists:products,id',
-        'qty.*' => 'required|numeric|min:1',
-        'price.*' => 'required|numeric|min:0',
-        'dis.*' => 'required|numeric|min:0|max:100',
-        'amount.*' => 'required|numeric|min:0',
-    ]);
+    {
+        $validator = Validator::make($request->all(), [
+            'supplier_name' => 'required',
+            'supplier_phone' => 'required|numeric|digits_between:10,10',
+            // 'place' => 'required'
+        ]);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+        $data = $request->all();
+        $supplier = null;
+        if ($data['supplier_id']) {
+            $supplier = Supplier::find($data['supplier_id']);
+        } else {
+            $supplier = Supplier::firstOrCreate([
+                'name' => $data['supplier_name'] ?? "",
+                'phone' => $data['supplier_phone'] ?? "",
+                // 'place' => $data['place'] ?? "",
+            ]);
+        }
 
-    // Create a new purchase
-    $purchase = new Purchase();
-    $purchase->supplier_id = $request->supplier_id;
-    $purchase->date = $request->date;
-    // Add other fields if needed
+        $invoice =  PurchaseInvoice::create([
+            'supplier_id' => $supplier->id,
+            'total' => $request->total,
+            'paid' => $request->paid ?? 0,
+            'balance' => $request->balance ?? 0,
+            'discount' => $request->discount ?? 0,
+            'payment_method' => $request->payment_method,
+            'purchase_invoice_no' => 1000 + rand(0, 99999),
+            'date' => $request->date
+        ]);
 
-    // Save the purchase
-    $purchase->save();
+        foreach ($data['product_name'] as $index => $productName) {
+            $product = null;
+            if (isset($data['product_id'][$index]) && $data['product_id'][$index]) {
+                $product = Product::find($data['product_id'][$index]);
+            } else {
+                $product = Product::firstOrCreate(
+                    [
+                        'name' => $productName,
+                    ],
+                    [
+                        'price' => $data['price'][$index],
+                        'unit' => $data['unit'][$index]
+                    ]
+                );
+            }
 
-    // Store purchase details
-foreach ($request->product_id as $key => $productId) {
-    $purchase->purchaseDetails()->create([
-        'supplier_id' => $request->supplier_id, // Include supplier_id
-        'product_id' => $productId,
-        'qty' => $request->qty[$key],
-        'price' => $request->price[$key],
-        'discount' => $request->dis[$key],
-        'amount' => $request->amount[$key],
-        // Add other details if needed
-    ]);
-}
+            $quantity = $data['quantity'][$index];
+            $amount = $data['amount'][$index];
 
+            Purchase::create([
+                // 'customer_id' => $supplier->id,
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'amount' => $amount,
+                'purchase_invoice_id' => $invoice->id
+            ]);
+        }
 
-    return redirect()->route('purchase.index')->with('success', 'Purchase added successfully');
-}
+        return redirect()->route('purchase.index')->with('success', 'Purchase created successfully');
+    }
 
     public function findPrice(Request $request){
         $data = DB::table('products')->select('sales_price')->where('id', $request->id)->first();
@@ -100,9 +148,9 @@ foreach ($request->product_id as $key => $productId) {
                 ->where('product_id', $request->id)
                 ->where('supplier_id', $request->supplier_id) // Assuming you pass supplier_id from the frontend
                 ->first();
-    
+
         return response()->json($data);
-    }    
+    }
 
     /**
      * Display the specified resource.
@@ -112,9 +160,9 @@ foreach ($request->product_id as $key => $productId) {
      */
     public function show($id)
     {
-        $invoice = Invoice::findOrFail($id);
-        $sales = Sale::where('invoice_id', $id)->get();
-        return view('invoice.show', compact('invoice','sales'));
+        $invoice = PurchaseInvoice::findOrFail($id);
+        $purchase = Purchase::where('purchase_invoice_id', $id)->get();
+        return view('purchase.show', compact('invoice','purchase'));
 
     }
 
@@ -127,10 +175,10 @@ foreach ($request->product_id as $key => $productId) {
     public function edit($id)
     {
 
-        $products = Product::orderBy('id', 'DESC')->get();
-        $invoice = Invoice::findOrFail($id);
-        $sales = Sale::where('invoice_id', $id)->get();
-        return view('invoice.edit', compact('products','invoice','sales'));
+        $suppliers = Supplier::all();
+        $products = Product::all();
+        $purchase = PurchaseInvoice::findOrFail($id);
+        return view('purchase.edit', compact('products','purchase','suppliers'));
     }
 
     /**
@@ -142,41 +190,87 @@ foreach ($request->product_id as $key => $productId) {
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
 
-            'customer_id' => 'required',
-            'product_id' => 'required',
-            'qty' => 'required',
-            'price' => 'required',
-            'dis' => 'required',
-            'amount' => 'required',
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'supplier_name' => 'required',
+            'supplier_phone' => 'required|numeric|digits_between:10,10',
+            // 'place' => 'required'
         ]);
 
-        $invoice = Invoice::findOrFail($id);
-        $invoice->customer_id = $request->customer_id;
-        $invoice->total = 1000;
-        $invoice->save();
-
-        Sale::where('invoice_id', $id)->delete();
-
-        foreach ( $request->product_id as $key => $product_id){
-            $sale = new Sale();
-            $sale->qty = $request->qty[$key];
-            $sale->price = $request->price[$key];
-            $sale->dis = $request->dis[$key];
-            $sale->amount = $request->amount[$key];
-            $sale->product_id = $request->product_id[$key];
-            $sale->invoice_id = $invoice->id;
-            $sale->save();
-
-
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        return redirect('invoice/'.$invoice->id)->with('message','created Successfully');
+        // Retrieve the data from the request
+        $data = $request->all();
+        $supplier = null;
 
+        // Find or create the supplier
+        if ($data['supplier_id']) {
+            $supplier = Supplier::find($data['supplier_id']);
+            $supplier->name = $data['supplier_name'] ?? $supplier->name;
+            $supplier->phone = $data['supplier_phone'] ?? $supplier->phone;
+            // $supplier->place = $data['place'] ?? $supplier->place;
+            $supplier->save();
+        } else {
+            $supplier = supplier::firstOrCreate([
+                'name' => $data['supplier_name'] ?? "",
+                'phone' => $data['supplier_phone'] ?? "",
+                // 'place' => $data['place'] ?? "",
+            ]);
+        }
 
+        // Find the invoice by ID and update it
+        $invoice = PurchaseInvoice::find($id);
+        $invoice->update([
+            'supplier_id' => $supplier->id,
+            'total' => $request->total,
+            'paid' => $request->paid ?? 0,
+            'balance' => $request->balance ?? 0,
+            'discount' => $request->discount ?? 0,
+            'payment_method' => $request->payment_method,
+            'date' => $request->date
+        ]);
+
+        // Delete existing sales associated with this invoice
+        Purchase::where('purchase_invoice_id', $invoice->id)->delete();
+
+        // Create new sales records
+        foreach ($data['product_name'] as $index => $productName) {
+            $product = null;
+            if (isset($data['product_id'][$index]) && $data['product_id'][$index]) {
+                $product = Product::find($data['product_id'][$index]);
+                $product->unit = $data['unit'][$index];
+                $product->price = $data['price'][$index];
+                $product->name = $data['product_name'][$index];
+                $product->save();
+            } else {
+                $product = Product::firstOrCreate(
+                    [
+                        'name' => $productName,
+                    ],
+                    [
+                        'price' => $data['price'][$index],
+                        'unit' => $data['unit'][$index]
+                    ]
+                );
+            }
+
+            $quantity = $data['quantity'][$index];
+            $amount = $data['amount'][$index];
+
+            Purchase::create([
+                // 'supplier_id' => $supplier->id,
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'amount' => $amount,
+                'purchase_invoice_id' => $invoice->id
+            ]);
+        }
+
+        return redirect()->route('purchase.index')->with('success', 'Purchase updated successfully');
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -186,7 +280,7 @@ foreach ($request->product_id as $key => $productId) {
 
     public function destroy($id)
     {
-        $invoice = Invoice::findOrFail($id);
+        $invoice = PurchaseInvoice::findOrFail($id);
         $invoice->delete();
         return redirect()->back();
 

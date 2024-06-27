@@ -33,7 +33,7 @@
                             @method('PUT')
                             <div class="form-group col-md-12">
                                 <label class="control-label">Supplier Name</label>
-                                <input value="{{ $supplier->name }}" name="name" class="form-control @error('name') is-invalid @enderror" type="text" placeholder="Enter Unit Name">
+                                <input name="name" value="{{$supplier->name}}" class="form-control @error('name') is-invalid @enderror" type="text" placeholder="Enter Name of Supplier">
                                 @error('name')
                                 <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -41,37 +41,9 @@
                                 @enderror
                             </div>
                             <div class="form-group col-md-12">
-                                <label class="control-label">Contact</label>
-                                <input value="{{ $supplier->mobile }}" name="mobile" class="form-control @error('mobile') is-invalid @enderror" type="text" placeholder="Enter Unit Name">
-                                @error('mobile')
-                                <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-12">
-                                <label class="control-label">Address</label>
-                                <textarea name="address" class="form-control @error('address') is-invalid @enderror">{{ $supplier->address }}</textarea>
-                                @error('address')
-                                <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-12">
-                                <label class="control-label">Details</label>
-                                <textarea  name="details" class="form-control @error('details') is-invalid @enderror">{{ $supplier->details }}</textarea>
-                                @error('details')
-                                <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-
-                            <div class="form-group col-md-12">
-                                <label class="control-label">Previous Credit Balance</label>
-                                <input value="{{ $supplier->previous_balance }}" name="previous_balance" class="form-control @error('previous_balance') is-invalid @enderror" type="text" placeholder="Enter Unit Name">
-                                @error('previous_balance')
+                                <label class="control-label">Supplier Phone</label>
+                                <input name="phone" value="{{$supplier->phone}}" class="form-control @error('phone') is-invalid @enderror" type="text" placeholder="Enter supplier phone number">
+                                @error('phone')
                                 <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>

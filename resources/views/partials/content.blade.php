@@ -36,6 +36,15 @@
             </div>
         </div>
     </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="widget-small warning coloured-icon">
+            <i class="icon fa fa-exchange fa-3x"></i>
+            <div class="info">
+                <h4>Purchases</h4>
+                <p><b>{{ $totalPurchaseInvoices }}</b></p>
+            </div>
+        </div>
+    </div>
 </div>
 
     <div class="row">
@@ -124,7 +133,7 @@
   height: '100%'
 };
 
-        
+
 
     var chart = new google.visualization.LineChart(document.getElementById('monthlySalesChart'));
     chart.draw(data, options);

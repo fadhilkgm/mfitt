@@ -34,64 +34,39 @@
                     <div class="tile-body">
                         <form method="POST" action="{{route('customer.store')}}">
                             @csrf
-                            <div class="form-group col-md-12">
-                                <label class="control-label">Customer Name</label>
-                                <input name="name" class="form-control @error('name') is-invalid @enderror" type="text" placeholder="Enter Customer's Name">
-                                @error('name')
-                                <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-12">
-                                <label class="control-label">Contact</label>
-                                <input name="mobile" class="form-control @error('mobile') is-invalid @enderror" type="text" placeholder="Enter Contact Number">
-                                @error('mobile')
-                                <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-12">
-                                <label class="control-label">Address</label>
-                                <textarea name="address" class="form-control @error('address') is-invalid @enderror"></textarea>
-                                @error('address')
-                                <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <div class="form-group col-md-12">
-                                <label class="control-label">Email</label>
-                                <input type="email" name="email" class="form-control @error('email') is-invalid @enderror">
-                                @error('email')
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label">Customer Name</label>
+                                    <input name="name" class="form-control @error('name') is-invalid @enderror" type="text" placeholder="Enter Customer's Name">
+                                    @error('name')
                                     <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="control-label">Customer Phone number</label>
+                                    <input name="phone" class="form-control @error('phone') is-invalid @enderror" type="text" placeholder="Enter Contact Number">
+                                    @error('phone')
+                                    <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
                             </div>
-                            <div class="form-group col-md-12">
-                                <label class="control-label">Details</label>
-                                <textarea name="details" class="form-control @error('details') is-invalid @enderror"></textarea>
-                                @error('details')
-                                <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="control-label">place</label>
+                                    <input name="place" placeholder="Enter place" class="form-control @error('place') is-invalid @enderror">
+                                    @error('place')
+                                    <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
                             </div>
 
-                            <div class="form-group col-md-12">
-                                <label class="control-label">Previous Credit Balance</label>
-                                <input name="previous_balance" class="form-control @error('previous_balance') is-invalid @enderror" type="text" placeholder="Example: 111">
-                                @error('previous_balance')
-                                <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-
-
-                            <div class="form-group col-md-4 align-self-end">
+                            <div class="form-group">
                                 <button class="btn btn-success" type="submit"><i class="fa fa-fw fa-lg fa-check-circle"></i> Add Customer Details</button>
                             </div>
                         </form>

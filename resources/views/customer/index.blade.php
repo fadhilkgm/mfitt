@@ -30,9 +30,8 @@
                             <thead>
                             <tr>
                                 <th>Customer </th>
-                                <th>Address </th>
-                                <th>Contact</th>
-                                <th>Details</th>
+                                <th>Place </th>
+                                <th>Contact </th>
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -40,9 +39,8 @@
                             @foreach( $customers as $customer)
                             <tr>
                                 <td>{{ $customer->name }} </td>
-                                <td>{{ $customer->address }} </td>
-                                <td>{{ $customer->mobile }} </td>
-                                <td>{{ $customer->details }} </td>
+                                <td>{{ $customer->place }} </td>
+                                <td>{{ $customer->phone }} </td>
                                  <td>
                                     <a class="btn btn-primary btn-sm" href="{{route('customer.edit', $customer->id)}}"><i class="fa fa-edit" ></i></a>
                                     <button class="btn btn-danger btn-sm waves-effect" type="submit" onclick="deleteTag({{ $customer->id }})">
@@ -83,8 +81,8 @@
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, delete it!',
                 cancelButtonText: 'No, cancel!',
-                confirmButtonClass: 'btn btn-success',
-                cancelButtonClass: 'btn btn-danger',
+                confirmButtonClass: 'btn btn-success m-2',
+                cancelButtonClass: 'btn btn-danger m-2',
                 buttonsStyling: false,
                 reverseButtons: true
             }).then((result) => {

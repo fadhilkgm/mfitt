@@ -2,200 +2,221 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Models\Customer;
+use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Sale;
-use App\Models\Sales;
-use App\Models\Supplier;
-use App\Models\Invoice;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Validator;
 
 class InvoiceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
 
-
-    public function __construct()
+    public function index(Request $request)
     {
-        $this->middleware('auth');
-    }
+        $query = Invoice::with('customer');
 
+        if ($request->has('customer_name')) {
+            $query->whereHas('customer', function ($query) use ($request) {
+                $query->where('name', 'like', '%' . $request->customer_name . '%');
+            });
+        }
 
-    public function index()
-    {
-        $invoices = Invoice::all();
+        if ($request->has('customer_phone')) {
+            $query->whereHas('customer', function ($query) use ($request) {
+                $query->where('phone', 'like', '%' . $request->customer_phone . '%');
+            });
+        }
+        if ($request->has('date')) {
+            $query->where('date', 'like', '%' . $request->date . '%');
+        }
+        if ($request->has('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        $invoices = $query->orderByDesc('created_at')->get();
+
         return view('invoice.index', compact('invoices'));
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         $products = Product::all();
-        return view('invoice.create', compact('products'));
+        $customers = Customer::all();
+        return view('invoice.create', compact('products', 'customers'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        // dd($request->product_id);
-        $request->validate([
-            'customer_name' => 'nullable|string',
-            'customer_phone' => 'nullable|string',
-            'product_id' => 'required|array',
-            'qty' => 'required|array',
-            'price' => 'required|array',
-            'dis' => 'required|array',
-            'amount' => 'required|array',
-            'count' => 'required|array',
-            'payment_method'=>'required'
+        $validator = Validator::make($request->all(), [
+            'customer_name' => 'required',
+            'customer_phone' => 'required|numeric|digits_between:10,10',
+            'place' => 'required'
         ]);
-
-        $invoice = new Invoice();
-        $invoice->customer_name = $request->customer_name;
-        $invoice->customer_phone = $request->customer_phone;
-        $invoice->payment_method = $request->payment_method;
-        $invoice->total = 0;
-        $invoice->date = Carbon::now();
-        $invoice->save();
-
-        $totalAmount = 0;
-
-        foreach ($request->product_id as $key => $product_id) {
-            $sale = new Sale();
-            $sale->qty = $request->qty[$key];
-            $sale->price = $request->price[$key];
-            $sale->dis = $request->dis[$key];
-            $sale->count = $request->count[$key];
-            $sale->amount = $request->amount[$key];
-            $sale->product_id = $product_id;
-            $sale->invoice_id = $invoice->id;
-            $sale->save();
-
-            $totalAmount += $sale->amount; // Add the sale amount to the total
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+        $data = $request->all();
+        $customer = null;
+        if ($data['customer_id']) {
+            $customer = Customer::find($data['customer_id']);
+        } else {
+            $customer = Customer::firstOrCreate([
+                'name' => $data['customer_name'] ?? "",
+                'phone' => $data['customer_phone'] ?? "",
+                'place' => $data['place'] ?? "",
+            ]);
         }
 
-        $invoice->total = $totalAmount; // Update the invoice total with the calculated amount
-        $invoice->save(); // Save the updated invoice
+        $invoice =  Invoice::create([
+            'customer_id' => $customer->id,
+            'total' => $request->total,
+            'paid' => $request->paid ?? 0,
+            'balance' => $request->balance ?? 0,
+            'discount' => $request->discount ?? 0,
+            'payment_method' => $request->payment_method,
+            'invoice_no' => 1000 + rand(0, 99999),
+            'date' => $request->date
+        ]);
 
-        return redirect('invoice/' . $invoice->id)->with('message', 'Invoice created successfully');
+        foreach ($data['product_name'] as $index => $productName) {
+            $product = null;
+            if (isset($data['product_id'][$index]) && $data['product_id'][$index]) {
+                $product = Product::find($data['product_id'][$index]);
+            } else {
+                $product = Product::firstOrCreate(
+                    [
+                        'name' => $productName,
+                    ],
+                    [
+                        'price' => $data['price'][$index],
+                        'unit' => $data['unit'][$index]
+                    ]
+                );
+            }
+
+            $quantity = $data['quantity'][$index];
+            $amount = $data['amount'][$index];
+
+            Sale::create([
+                'customer_id' => $customer->id,
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'amount' => $amount,
+                'invoice_id' => $invoice->id
+            ]);
+        }
+
+        return redirect()->route('invoice.index')->with('success', 'Sale created successfully');
     }
 
 
-
-
-    public function findPrice(Request $request)
-    {
-        $data = DB::table('products')->select('sales_price','quantity','unit')->where('id', $request->id)->first();
-        return response()->json($data);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $invoice = Invoice::findOrFail($id);
-        $sales = Sale::where('invoice_id', $id)->get();
-        return view('invoice.show', compact('invoice', 'sales'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
-        
-        $products = Product::orderBy('id', 'DESC')->get();
-        $invoice = Invoice::findOrFail($id);
-        $sales = Sale::where('invoice_id', $id)->get();
-        return view('invoice.edit', compact('products', 'invoice', 'sales'));
+        $invoice = Invoice::with(['customer', 'sales.product'])->findOrFail($id);
+        $products = Product::all();
+        $customers = Customer::all();
+        return view('invoice.edit', compact('invoice', 'products', 'customers'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'customer_name' => 'nullable|string',
-            'customer_phone' => 'nullable|string',
-            'product_id' => 'required|array',
-            'qty' => 'required|array',
-            'price' => 'required|array',
-            'dis' => 'required|array',
-            'amount' => 'required|array',
-            'payment_method'=>'required'
+
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'customer_name' => 'required',
+            'customer_phone' => 'required|numeric|digits_between:10,10',
+            'place' => 'required'
         ]);
 
-        $invoice = Invoice::findOrFail($id);
-        $invoice->customer_name = $request->customer_name;
-        $invoice->customer_phone = $request->customer_phone;
-        $invoice->payment_method = $request->payment_method;
-        $invoice->date = Carbon::now();
-        $invoice->total = 0; 
-        Sale::where('invoice_id', $invoice->id)->delete();
-
-        $totalAmount = 0;
-
-        foreach ($request->product_id as $key => $product_id) {
-            $sale = new Sale();
-            $sale->qty = $request->qty[$key];
-            $sale->price = $request->price[$key];
-            $sale->dis = $request->dis[$key];
-            $sale->count = $request->count[$key];
-            $sale->amount = $request->amount[$key];
-            $sale->product_id = $product_id;
-            $sale->invoice_id = $invoice->id;
-            $sale->save();
-
-            $totalAmount += $sale->amount; // Add the sale amount to the total
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $invoice->total = $totalAmount; // Update the invoice total with the calculated amount
-        $invoice->save(); // Save the updated invoice
+        // Retrieve the data from the request
+        $data = $request->all();
+        $customer = null;
 
-        return redirect('invoice/' . $invoice->id)->with('message', 'Invoice updated successfully');
+        // Find or create the customer
+        if ($data['customer_id']) {
+            $customer = Customer::find($data['customer_id']);
+            $customer->name = $data['customer_name'] ?? $customer->name;
+            $customer->phone = $data['customer_phone'] ?? $customer->phone;
+            $customer->place = $data['place'] ?? $customer->place;
+            $customer->save();
+        } else {
+            $customer = Customer::firstOrCreate([
+                'name' => $data['customer_name'] ?? "",
+                'phone' => $data['customer_phone'] ?? "",
+                'place' => $data['place'] ?? "",
+            ]);
+        }
+
+        // Find the invoice by ID and update it
+        $invoice = Invoice::find($id);
+        $invoice->update([
+            'customer_id' => $customer->id,
+            'total' => $request->total,
+            'paid' => $request->paid ?? 0,
+            'balance' => $request->balance ?? 0,
+            'discount' => $request->discount ?? 0,
+            'payment_method' => $request->payment_method,
+            'date' => $request->date
+        ]);
+
+        // Delete existing sales associated with this invoice
+        Sale::where('invoice_id', $invoice->id)->delete();
+
+        // Create new sales records
+        foreach ($data['product_name'] as $index => $productName) {
+            $product = null;
+            if (isset($data['product_id'][$index]) && $data['product_id'][$index]) {
+                $product = Product::find($data['product_id'][$index]);
+                $product->unit = $data['unit'][$index];
+                $product->price = $data['price'][$index];
+                $product->name = $data['product_name'][$index];
+                $product->save();
+            } else {
+                $product = Product::firstOrCreate(
+                    [
+                        'name' => $productName,
+                    ],
+                    [
+                        'price' => $data['price'][$index],
+                        'unit' => $data['unit'][$index]
+                    ]
+                );
+            }
+
+            $quantity = $data['quantity'][$index];
+            $amount = $data['amount'][$index];
+
+            Sale::create([
+                'customer_id' => $customer->id,
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'amount' => $amount,
+                'invoice_id' => $invoice->id
+            ]);
+        }
+
+        return redirect()->route('invoice.index')->with('success', 'Invoice updated successfully');
     }
 
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
+    public function show($id)
+    {
+        $invoice = Invoice::with(['customer', 'sales.product'])->findOrFail($id);
+        $products = Product::all();
+        $customers = Customer::all();
+        // dd($invoice);
+        return view('invoice.show', compact('invoice', 'products', 'customers'));
+    }
 
     public function destroy($id)
     {
-        Sales::where('invoice_id', $id)->delete();
         $invoice = Invoice::findOrFail($id);
         $invoice->delete();
-        return redirect()->back();
+        return redirect()->route('invoice.index')->with('success', 'Invoice deleted successfully');
     }
 }

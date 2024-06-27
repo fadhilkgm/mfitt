@@ -39,23 +39,15 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|min:3|unique:suppliers|regex:/^[a-zA-Z ]+$/',
-            'address' => 'required|min:3',
-            'mobile' => 'required|min:3|digits:11',
-            'details' => 'required|min:3|',
-            'previous_balance' => 'min:3',
-
+            'name' => 'required|min:3',
+            'phone' => 'required|min:3|digits:10',
         ]);
-
         $supplier = new Supplier();
         $supplier->name = $request->name;
-        $supplier->address = $request->address;
-        $supplier->mobile = $request->mobile;
-        $supplier->details = $request->details;
-        $supplier->previous_balance = $request->previous_balance;
+        $supplier->phone = $request->phone;
         $supplier->save();
 
-        return redirect()->back()->with('message', 'New supplier has been added successfully!');
+        return redirect()->route('supplier.index')->with('message', 'New supplier has been added successfully!');
     }
 
     /**
@@ -91,22 +83,16 @@ class SupplierController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|min:3|regex:/^[a-zA-Z ]+$/',
-            'address' => 'required|min:3',
-            'mobile' => 'required|min:3|digits:11',
-            'details' => 'required|min:3|',
-            'previous_balance' => 'min:3',
+            'name' => 'required|min:3',
+            'phone' => 'required|min:3|digits:10',
         ]);
 
         $supplier = Supplier::findOrFail($id);
         $supplier->name = $request->name;
-        $supplier->address = $request->address;
-        $supplier->mobile = $request->mobile;
-        $supplier->details = $request->details;
-        $supplier->previous_balance = $request->previous_balance;
+        $supplier->phone = $request->phone;
         $supplier->save();
 
-        return redirect()->back()->with('message', 'Suppler Updated Successfully');
+        return redirect()->route('supplier.index')->with('message', 'Suppler Updated Successfully');
     }
 
     /**

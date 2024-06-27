@@ -2,24 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Purchase extends Model
 {
-    protected $fillable = [
-        'supplier_id',
-        'date',
-        // Add other fillable attributes here
-    ];
-
-    public function supplier()
+    use HasFactory;
+    protected $guarded = [];
+    public function PurchaseInvoice()
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(PurchaseInvoice::class);
     }
 
-    public function purchaseDetails()
+    public function product()
     {
-        return $this->hasMany(PurchaseDetail::class);
+        return $this->belongsTo(Product::class);
     }
+
 }
-

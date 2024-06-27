@@ -39,9 +39,8 @@
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label class="control-label">Product Name</label>
-                                <input value="{{$product->name}}" name="name"
-                                    class="form-control @error('name') is-invalid @enderror" type="text"
-                                    placeholder="Product Name">
+                                <input name="name" class="form-control @error('name') is-invalid @enderror" type="text"
+                                    placeholder="Product Name" value="{{ $product->name }}">
                                 @error('name')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -49,32 +48,13 @@
                                 @enderror
                             </div>
                             <div class="form-group col-md-6">
-                                <label class="control-label">Category</label>
-
-                                <select name="category_id" class="form-control">
-                                    <option value="">Select Category</option>
-                                    @foreach($categories as $category)
-                                    <option value="{{$category->id}}" {{$product->category->id ==
-                                        $category->id?'selected':''}}>{{$category->name}}</option>
-                                    @endforeach
-                                </select>
-
-                                @error('category_id')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </div>
-
-                            <div class="form-group col-md-6">
                                 <label class="control-label">Unit</label>
-                                <select name="unit" id="unit" class="form-control">
-                                    <option>---Select Unit---</option>
-                                    <option value="KG" {{$product->unit == 'KG' ? 'selected':''}}>KG</option>
-                                    <option value="GM" {{$product->unit == 'GM' ? 'selected':''}}>GM</option>
-                                    <option value="LTR" {{$product->unit == 'LTR' ? 'selected':''}}>LTR</option>
-                                    <option value="ML" {{$product->unit == 'ML' ? 'selected':''}}>ML</option>
-                                    <option value="PK" {{$product->unit == 'PK' ? 'selected':''}}>PK</option>
+                                <select name="unit" class="form-control unit">
+                                    <option value="">Select Unit</option>
+                                    <option value="M" {{ $product->unit == 'M' ? 'selected' : '' }}>Meter</option>
+                                    <option value="In" {{ $product->unit == 'In' ? 'selected' : '' }}>Inch</option>
+                                    <option value="Ft" {{ $product->unit == 'Ft' ? 'selected' : '' }}>Feet</option>
+                                    <option value="Pc" {{ $product->unit == 'Pc' ? 'selected' : '' }}>Piece</option>
                                 </select>
                                 @error('unit')
                                 <span class="invalid-feedback" role="alert">
@@ -84,45 +64,26 @@
                             </div>
 
                             <div class="form-group col-md-6 selling-price-normal">
-                                <label class="control-label">Quantity</label> 
-                                <input name="quantity" class="form-control @error('quantity') is-invalid @enderror"
-                                    type="number" placeholder="Enter quantity" value="{{$product->quantity}}">
-                                @error('quantity')
+                                <label class="control-label">Price</label>
+                                <input name="price" class="form-control @error('price') is-invalid @enderror"
+                                    type="number" value="{{ $product->price }}" placeholder="Enter Price">
+                                @error('price')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>
                                 @enderror
                             </div>
-                            
-
-                            <div class="form-group col-md-6">
-                                <label class="control-label">Selling Price</label>
-                                <input value="{{$product->sales_price}}" name="sales_price"
-                                    class="form-control @error('sales_price') is-invalid @enderror" type="number"
-                                    placeholder="Enter Tax Name">
-                                @error('sales_price')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </div>
-
-                            
-                        
-
-                            
-                      
-
                         </div>
-                        <div class="form-group col-md-4 align-self-end">
-                            <button class="btn btn-success" type="submit"><i
-                                    class="fa fa-fw fa-lg fa-check-circle"></i>Update</button>
-                        </div>
-
-                    </form>
                 </div>
+                <div class="form-group col-md-4 align-self-end">
+                    <button class="btn btn-success" type="submit"><i
+                            class="fa fa-fw fa-lg fa-check-circle"></i>Update</button>
+                </div>
+
+                </form>
             </div>
         </div>
+    </div>
     </div>
 </main>
 @endsection

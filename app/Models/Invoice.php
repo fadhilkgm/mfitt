@@ -2,22 +2,27 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Invoice extends Model
 {
-
-    public function sale(){
-        return $this->hasMany('App\Models\Sales');
+    use HasFactory;
+    protected $fillable = [
+        'invoice_no',
+        'customer_id',
+        'total',
+        'paid',
+        'balance',
+        'payment_method',
+        'date',
+        'discount',
+    ];
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
     }
-
-    public function customer(){
-        return $this->belongsTo('App\Models\Customer');
+    public function sales(){
+        return $this->hasMany(Sale::class);
     }
-
-
-
-
-
-
 }
